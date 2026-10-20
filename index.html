@@ -200,6 +200,7 @@ const FAMILY = {
   lotte:  { name: "Lotte", place: "Granddaughter", hint: "She can be there when it counts.", suggest: "close" }
 };
 const ORDER = ["sophie", "pieter", "annie", "lotte"];
+const hasOwn = (obj, key) => typeof key === "string" && Object.prototype.hasOwnProperty.call(obj, key);
 
 const ROLES = {
   admin: {
@@ -416,12 +417,12 @@ document.getElementById("again").addEventListener("click", () => {
   if (raw) {
     state.circle = raw.split(",").map((pair) => {
       const [id, role] = pair.split(":");
-      return FAMILY[id] && ROLES[role] ? { id, role } : null;
+      return hasOwn(FAMILY, id) && hasOwn(ROLES, role) ? { id, role } : null;
     }).filter(Boolean);
   }
   const screen = q.get("screen");
   if (["home", "invite", "night"].includes(screen)) state.screen = screen;
-  if (screen === "role" && q.get("person") && FAMILY[q.get("person")]) openRole(q.get("person"));
+  if (screen === "role" && hasOwn(FAMILY, q.get("person"))) openRole(q.get("person"));
   render();
 })();
 </script>
