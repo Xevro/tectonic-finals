@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mantel by KBC</title>
+<style>
+  :root {
+    color-scheme: light;
+    --blue: #0096d6;
+    --blue-ink: #066a99;
+    --ink: #1b1e22;
+    --muted: #5c6670;
+    --line: #e6e9ec;
+    --paper: #fff;
+    --stage: #e7eef2;
+    --soft: #f3f6f8;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: var(--ink);
+    background: var(--stage);
+  }
+  button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+  button:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+  button:disabled { cursor: default; }
+
+  .stage {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 28px 24px 22px;
+    gap: 18px;
+  }
+  .brand {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--blue-ink);
+  }
+  .phone-wrap { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; }
+  .phone {
+    height: min(100%, 800px);
+    aspect-ratio: 390 / 800;
+    background: #14171a;
+    border-radius: 38px;
+    padding: 10px;
+    display: flex;
+    overflow: hidden;
+  }
+  .screen { background: var(--paper); border-radius: 28px; overflow: hidden; width: 100%; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  .page {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+  }
+  .scroll { min-height: 0; overflow: auto; padding: 4px 22px 16px; }
+  .scroll::-webkit-scrollbar { width: 0; }
+
+  .status { padding: 14px 22px 0; font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 42px;
+    padding: 2px 16px 0;
+  }
+  .back { color: var(--blue); font-size: 16px; font-weight: 650; padding: 6px; }
+  .mark { color: var(--blue); font-weight: 750; letter-spacing: -0.04em; font-size: 20px; padding-left: 6px; }
+  .whoami { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; }
+  .mono {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: grid; place-items: center;
+    background: #e5f4fb; color: var(--blue-ink);
+    font-size: 12px; font-weight: 750; font-style: normal;
+  }
+
+  .chapters { display: flex; gap: 4px; padding: 8px 18px 0; }
+  .chapters button {
+    flex: 1;
+    padding: 8px 4px 10px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+    border-bottom: 2px solid transparent;
+  }
+  .chapters button.on { color: var(--blue-ink); border-bottom-color: var(--blue); }
+  .chapters button:disabled { color: #b7c0c6; }
+
+  .kicker {
+    margin: 12px 0 0;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--blue-ink);
+  }
+  h1 {
+    margin: 6px 0 0;
+    font-size: 32px;
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+    font-weight: 700;
+  }
+  .lede { margin: 10px 0 0; font-size: 18px; line-height: 1.35; }
+
+  .block { margin-top: 16px; display: flex; flex-direction: column; }
+  .list { margin-top: 18px; }
+  .card, .row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    text-align: left;
+  }
+  .card { background: var(--soft); border-radius: 16px; padding: 16px; }
+  .card.on { background: #dff3fb; box-shadow: inset 0 0 0 2px #0096d6; }
+  .choice {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    text-align: left;
+    padding: 13px 4px;
+    border-top: 1px solid var(--line);
+    border-radius: 10px;
+  }
+  .choice b { font-size: 17px; font-weight: 700; }
+  .choice small { color: var(--muted); font-size: 15px; }
+  .choice.on { background: #dff3fb; box-shadow: inset 3px 0 0 #0096d6; padding-left: 12px; padding-right: 12px; }
+  .row { padding: 11px 0; border-top: 1px solid var(--line); }
+  .txt { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .card b, .row b { font-size: 17px; font-weight: 700; letter-spacing: -0.02em; }
+  .card small, .row small { color: var(--muted); font-size: 15px; line-height: 1.3; }
+  .chev { color: #9aa3aa; font-size: 22px; }
+
+  .fact { margin-top: 22px; }
+  .fact p { margin: 0; padding: 12px 0; border-top: 1px solid var(--line); font-size: 16px; line-height: 1.35; }
+  .fact p span { display: block; color: var(--muted); font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 2px; }
+
+  .foot { padding: 10px 22px 18px; background: var(--paper); }
+  .actions { margin-top: 18px; }
+  .foot p { margin: 0 0 10px; color: var(--muted); font-size: 14px; line-height: 1.35; }
+  .go {
+    width: 100%;
+    background: var(--blue);
+    color: white;
+    border-radius: 14px;
+    padding: 14px 18px;
+    font-size: 17px;
+    font-weight: 700;
+  }
+  .go.second { margin-top: 10px; background: transparent; color: var(--blue-ink); }
+
+  .caption {
+    margin: 0;
+    max-width: 560px;
+    text-align: center;
+    font-size: 18px;
+    line-height: 1.35;
+    font-weight: 600;
+  }
+  .again {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 650;
+  }
+
+  @media (max-width: 740px) {
+    .stage { padding: 12px 0 0; gap: 10px; }
+    .phone { height: 100%; width: 100%; aspect-ratio: auto; border-radius: 0; padding: 0; background: white; }
+    .screen { border-radius: 0; }
+    .caption, .again { padding: 0 16px; }
+  }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <p class="brand">Mantel by KBC</p>
+    <div class="phone-wrap">
+      <div class="phone"><div class="screen" id="screen"></div></div>
+    </div>
+    <p class="caption" id="caption"></p>
+    <button class="again" id="again" type="button">Start again</button>
+  </div>
+
+<script>
+const FAMILY = {
+  sophie: { name: "Sophie", place: "Daughter", hint: "She can take the decisions over the limit.", suggest: "admin" },
+  pieter: { name: "Pieter", place: "Son, abroad", hint: "He can see the plan from a distance, and help pay.", suggest: "contributor" },
+  annie:  { name: "Annie", place: "Partner at home", hint: "She needs one number. The money can stay with you.", suggest: "home" },
+  lotte:  { name: "Lotte", place: "Granddaughter", hint: "She can be there when it counts.", suggest: "close" }
+};
+const ORDER = ["sophie", "pieter", "annie", "lotte"];
+
+const ROLES = {
+  admin: {
+    title: "Admin",
+    line: "Approves over €500",
+    sees: "The plan and the money",
+    does: "Approves an expense over €500"
+  },
+  contributor: {
+    title: "Contributor",
+    line: "Adds to the pot",
+    sees: "Everything",
+    does: "Can add money to the care pot"
+  },
+  view: {
+    title: "View only",
+    line: "Sees everything",
+    sees: "Everything",
+    does: "Looks on. Nothing is asked of them"
+  },
+  home: {
+    title: "At home",
+    line: "One number to call",
+    sees: "Who is coming to the house",
+    does: "Calls the Care Captain"
+  },
+  close: {
+    title: "Close circle",
+    line: "Sees Friday",
+    sees: "That he comes home on Friday",
+    does: "Can be called if something happens"
+  }
+};
+const ROLE_ORDER = ["admin", "contributor", "view", "home", "close"];
+
+const state = {
+  screen: "home",
+  circle: [],
+  picking: null,
+  role: "admin"
+};
+
+function member(id) { return state.circle.find((m) => m.id === id); }
+function invited(id) { return ORDER.filter((pid) => !member(pid)); }
+
+function appBar(back) {
+  const left = back
+    ? `<button class="back" type="button" data-act="back">${back}</button>`
+    : `<span class="mark">KBC</span>`;
+  return `<div class="status">09:41</div>
+    <div class="bar">${left}<span class="whoami"><i class="mono">J</i>Jos</span></div>`;
+}
+
+function chapters() {
+  const s = state.screen;
+  const you = s === "home";
+  const invite = s === "invite" || s === "role";
+  const nightOn = state.circle.length > 0;
+  const btn = (id, label, on, enabled) =>
+    `<button type="button" data-act="chapter" data-chapter="${id}" class="${on ? "on" : ""}" ${enabled ? "" : "disabled"}>${label}</button>`;
+  return `<div class="chapters">${btn("home", "You", you, true)}${btn("invite", "Invite", invite, true)}${btn("night", "Tuesday", s === "night", nightOn)}</div>`;
+}
+
+function shell(back, body, foot) {
+  return `<div class="page"><div class="head">${appBar(back)}${chapters()}</div><div class="scroll">${body}</div>${foot || ""}</div>`;
+}
+
+function renderHome() {
+  const people = state.circle.map((m) => `
+    <button class="row" type="button" data-act="edit" data-person="${m.id}">
+      <span class="txt"><b>${FAMILY[m.id].name}</b><small>${ROLES[m.role].title} · ${ROLES[m.role].line}</small></span>
+      <span class="chev">›</span>
+    </button>`).join("");
+  const jos = `<div class="row"><span class="txt"><b>Jos</b><small>Owner · pays, and decides who joins</small></span></div>`;
+  const empty = state.circle.length === 0;
+  const actions = `<div class="actions">
+      <button class="go" type="button" data-act="chapter" data-chapter="invite">${empty ? "Invite the family" : "Invite someone"}</button>
+      ${empty ? "" : `<button class="go second" type="button" data-act="chapter" data-chapter="night">See Tuesday night</button>`}
+    </div>`;
+  return shell("", `
+    <p class="kicker">Mantel</p>
+    <h1>${empty ? "Just you" : "The circle"}</h1>
+    <p class="lede">${empty ? "You own this space. Home Friday, 16:00." : "Home Friday, 16:00. You set each person's place."}</p>
+    <div class="block">${jos}${people}</div>
+    ${actions}
+  `);
+}
+
+function renderInvite() {
+  const left = invited();
+  const cards = left.map((id) => {
+    const p = FAMILY[id];
+    return `<button class="card" type="button" data-act="pick" data-person="${id}">
+      <span class="txt"><b>${p.name}</b><small>${p.place}</small></span>
+      <span class="chev">›</span>
+    </button>`;
+  }).join("");
+  const body = left.length
+    ? `<p class="kicker">Invite</p><h1>Who joins?</h1><p class="lede">Choose a person. Next you choose what they can see and do.</p><div class="block">${cards}</div>`
+    : `<p class="kicker">Invite</p><h1>Everyone is in</h1><p class="lede">You can still change a role from the circle.</p>`;
+  const foot = left.length ? "" : `<div class="foot"><button class="go" type="button" data-act="chapter" data-chapter="night">See Tuesday night</button></div>`;
+  return shell("‹ Circle", body, foot);
+}
+
+function renderRole() {
+  const p = FAMILY[state.picking];
+  const chosen = ROLES[state.role];
+  const cards = ROLE_ORDER.map((id) => {
+    const r = ROLES[id];
+    return `<button class="choice ${id === state.role ? "on" : ""}" type="button" data-act="role" data-role="${id}">
+      <b>${r.title}</b><small>${r.line}</small>
+    </button>`;
+  }).join("");
+  const editing = !!member(state.picking);
+  const sees = chosen.sees.charAt(0).toLowerCase() + chosen.sees.slice(1);
+  return shell("‹ Back", `
+    <p class="kicker">${p.name} · ${p.place}</p>
+    <h1>Choose a role</h1>
+    <p class="lede">${p.hint}</p>
+    <div class="list">${cards}</div>
+  `, `<div class="foot"><p>Sees ${sees}. ${chosen.does}.</p><button class="go" type="button" data-act="save">${editing ? "Save" : "Add " + p.name}</button></div>`);
+}
+
+function nightLine(m) {
+  const name = FAMILY[m.id].name;
+  if (m.role === "admin") return [name, "Approves the bed. It is over €500"];
+  if (m.role === "contributor") return [name, m.id === "pieter" ? "Can add €300 a month to the pot" : "Can add money to the pot"];
+  if (m.role === "view") return [name, "Sees the plan and the money"];
+  if (m.role === "home") return [name, "Calls Ines. Sees the day"];
+  return [name, "Sees Friday, 16:00"];
+}
+
+function renderNight() {
+  const admins = state.circle.filter((m) => m.role === "admin");
+  const bed = admins.length
+    ? ""
+    : `<div class="row"><span class="txt"><b>The bed</b><small>Over €500. It waits for you</small></span></div>`;
+  const rows = state.circle.map((m) => {
+    const [a, b] = nightLine(m);
+    return `<div class="row"><span class="txt"><b>${a}</b><small>${b}</small></span></div>`;
+  }).join("");
+  return shell("‹ Circle", `
+    <p class="kicker">Tuesday, 02:14</p>
+    <h1>Home Friday, 16:00</h1>
+    <p class="lede">Ines is getting the house ready. The night follows the roles you set.</p>
+    <div class="block">
+      <div class="row"><span class="txt"><b>Ines</b><small>Care Captain. One number for the house</small></span></div>
+      ${bed}${rows}
+    </div>
+  `);
+}
+
+function caption() {
+  if (state.screen === "invite") return "Jos chooses who may enter the household.";
+  if (state.screen === "role") return "The role sets what they see, and what they can do.";
+  if (state.screen === "night") return "Tuesday night uses only the access he gave.";
+  if (state.circle.length === 0) return "Mantel starts with one person. Jos owns the space.";
+  return "He can change a role, or invite someone else.";
+}
+
+function render() {
+  const screen = document.getElementById("screen");
+  const html = state.screen === "invite" ? renderInvite()
+    : state.screen === "role" ? renderRole()
+    : state.screen === "night" ? renderNight()
+    : renderHome();
+  screen.innerHTML = html;
+  document.getElementById("caption").textContent = caption();
+}
+
+function openRole(id) {
+  state.picking = id;
+  state.role = (member(id) || {}).role || FAMILY[id].suggest;
+  state.screen = "role";
+}
+
+function saveRole() {
+  const existing = member(state.picking);
+  if (existing) existing.role = state.role;
+  else state.circle.push({ id: state.picking, role: state.role });
+  state.screen = "home";
+  render();
+}
+
+document.getElementById("screen").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-act]");
+  if (!b || b.disabled) return;
+  const act = b.dataset.act;
+  if (act === "back") {
+    const editing = state.screen === "role" && member(state.picking);
+    state.screen = state.screen === "role" && !editing ? "invite" : "home";
+  } else if (act === "chapter") {
+    const chapter = b.dataset.chapter;
+    if (chapter === "night" && state.circle.length === 0) return;
+    state.screen = chapter;
+  } else if (act === "pick") openRole(b.dataset.person);
+  else if (act === "edit") openRole(b.dataset.person);
+  else if (act === "role") state.role = b.dataset.role;
+  else if (act === "save") { saveRole(); return; }
+  render();
+});
+
+document.getElementById("again").addEventListener("click", () => {
+  state.screen = "home";
+  state.circle = [];
+  state.picking = null;
+  state.role = "admin";
+  render();
+});
+
+(function boot() {
+  const q = new URLSearchParams(location.search);
+  const raw = q.get("circle");
+  if (raw) {
+    state.circle = raw.split(",").map((pair) => {
+      const [id, role] = pair.split(":");
+      return FAMILY[id] && ROLES[role] ? { id, role } : null;
+    }).filter(Boolean);
+  }
+  const screen = q.get("screen");
+  if (["home", "invite", "night"].includes(screen)) state.screen = screen;
+  if (screen === "role" && q.get("person") && FAMILY[q.get("person")]) openRole(q.get("person"));
+  render();
+})();
+</script>
+</body>
+</html>
